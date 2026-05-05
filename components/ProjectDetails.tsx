@@ -14,14 +14,14 @@ const sections = [
           The project is rooted in the principle of avoiding resource waste (Israf) by making "invisible" electricity consumption visible. 
           Nabeeh operates as an <span className="glow-green font-bold">"electrical fingerprint scanner"</span> from a single central measurement point.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="glass-card p-4 rounded border-l-4 border-l-[#2EC4B6]">
-            <h4 className="section-label mb-2">Non-Intrusive Monitoring</h4>
-            <p className="text-sm text-secondary">Avoids per-outlet sensors by analyzing high-frequency voltage and current waveforms at the main inlet.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <div className="glass-card p-3 rounded border-l-4 border-l-[#2EC4B6]">
+            <h4 className="section-label mb-1">Non-Intrusive Monitoring</h4>
+            <p className="text-xs text-secondary">Avoids per-outlet sensors by analyzing high-frequency voltage and current waveforms at the main inlet.</p>
           </div>
-          <div className="glass-card p-4 rounded border-l-4 border-l-[#7ED957]">
-            <h4 className="section-label mb-2">Edge AI Disaggregation</h4>
-            <p className="text-sm text-secondary">Identifies unique "harmonic signatures"—distinguishing a refrigerator's noise from a vacuum cleaner's.</p>
+          <div className="glass-card p-3 rounded border-l-4 border-l-[#7ED957]">
+            <h4 className="section-label mb-1">Edge AI Disaggregation</h4>
+            <p className="text-xs text-secondary">Identifies unique "harmonic signatures"—distinguishing a refrigerator's noise from a vacuum cleaner's.</p>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@ const sections = [
     content: (
       <div className="space-y-4">
         <p>The "Edge Node" utilizes high-fidelity signal capture and safe, non-invasive installation components.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
           {[
             { label: 'Microcontroller', val: 'ESP32-S3 (Dual-core, AI Acceleration)' },
             { label: 'Current Sensing', val: 'PZCT-02 (100A Split-Core Transformer)' },
@@ -58,7 +58,7 @@ const sections = [
     content: (
       <div className="space-y-4">
         <p>Intelligence lies in local processing, removing reliance on persistent cloud connections for core inference.</p>
-        <ul className="space-y-3">
+        <ul className="space-y-3 mt-2">
           <li className="flex gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-[#7ED957] mt-1.5 shrink-0" />
             <div>
@@ -121,7 +121,7 @@ const sections = [
     content: (
       <div className="space-y-4">
         <p>Translating abstract electrical metrics into actionable consumer intelligence.</p>
-        <div className="space-y-3">
+        <div className="space-y-3 mt-2">
           <div className="flex justify-between items-center p-3 glass-card rounded">
             <span className="text-sm font-medium">Load Differentiation</span>
             <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-muted">Inductive vs Resistive</span>
@@ -189,12 +189,12 @@ export default function ProjectDetails() {
         </div>
 
         {/* Content Area */}
-        <div className="glass-card rounded-xl p-8 min-h-[350px] relative overflow-hidden flex flex-col">
+        <div className="glass-card rounded-xl p-8 min-h-[250px] relative overflow-hidden flex flex-col">
           {/* Background Highlight */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#2EC4B6]/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" />
           
           <div className="relative z-10 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-[1px] bg-[#2EC4B6]" />
               <h3 className="text-xl font-bold glow-green">{activeData.title}</h3>
             </div>
