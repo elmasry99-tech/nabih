@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Cpu, Zap, Radio, Shield, Activity, Layers } from 'lucide-react';
 import OscilloscopeWave from '@/components/OscilloscopeWave';
+import ProjectDetails from '@/components/ProjectDetails';
 
 const features = [
   {
@@ -107,13 +108,12 @@ export default function HomePage() {
             >
               Launch Dashboard →
             </Link>
-            <Link
-              href="/gallery"
-              className="btn-cyber px-8 py-3 rounded font-semibold text-sm tracking-wider uppercase"
-            >
-              Project Log
-            </Link>
+           
           </div>
+
+  
+
+
         </div>
 
         {/* Oscilloscope waveform strip */}
@@ -187,6 +187,8 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+
 
       {/* ── CTA ──────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 pb-24">

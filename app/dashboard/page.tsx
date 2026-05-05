@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ref, query, limitToLast, onValue } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line
+  LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
-import { Upload, Zap, Activity, DollarSign, AlertTriangle } from 'lucide-react';
+import { Zap, Activity, DollarSign, AlertTriangle } from 'lucide-react';
 import OscilloscopeWave from '@/components/OscilloscopeWave';
 import ApplianceWaveIcon from '@/components/ApplianceWaveIcon';
 
@@ -20,22 +20,24 @@ interface DeviceState {
 interface NabihData {
   timestamp: string;
   total_power_watts: number;
-  cost_sar_per_hour: number;
+  total_energy_kwh: number;
+  accumulated_cost_sar: number;
   system_status: string;
   unknown_device_warning: boolean;
   devices: Record<string, DeviceState>;
 }
 
 const DEMO: NabihData = {
-  timestamp: '2026-05-03 21:49:44',
-  total_power_watts: 2150.0,
-  cost_sar_per_hour: 0.86,
-  system_status: 'Active Load Detected',
+  timestamp: '2026-05-05 22:48:20',
+  total_power_watts: 0.6,
+  total_energy_kwh: 0.000084279,
+  accumulated_cost_sar: 0.00001517,
+  system_status: 'Standby (Vampire Draw)',
   unknown_device_warning: false,
   devices: {
-    boiler: { state: 'ON', confidence_pct: 92 },
-    vacuum: { state: 'OFF', confidence_pct: 8 },
-    fan: { state: 'ON', confidence_pct: 78 },
+    boiler: { state: 'OFF', confidence_pct: 4 },
+    vacuum: { state: 'OFF', confidence_pct: 2 },
+    toaster: { state: 'OFF', confidence_pct: 1 },
   },
 };
 
@@ -83,15 +85,9 @@ function MetricCard({
 export default function DashboardPage() {
   const [data, setData] = useState<NabihData | null>(null);
   const [error, setError] = useState('');
-  const [pulse, setPulse] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [history, setHistory] = useState<{time: string, power: number}[]>([]);
-
-  const triggerPulse = useCallback(() => {
-    setPulse(true);
-    setTimeout(() => setPulse(false), 700);
-  }, []);
-
+  const [timeRange, setTimeRange] = useState<'day' | 'month'>('day');
   // Firebase Realtime Listener
   useEffect(() => {
     try {
@@ -101,7 +97,7 @@ export default function DashboardPage() {
       const unsubscribe = onValue(recentReadingsQuery, (snapshot) => {
         const val = snapshot.val();
         if (val) {
-          console.log("Raw Firebase Data:", val);
+
           
           const keys = Object.keys(val);
           
@@ -118,21 +114,21 @@ export default function DashboardPage() {
 
           // Map the flat raw ESP32 data into our beautiful dashboard schema!
           const mappedData: NabihData = {
-            timestamp: new Date().toLocaleTimeString(), // Or use raw.timestamp if it's formatted
+            timestamp: raw.timestamp || new Date().toLocaleTimeString(),
             total_power_watts: raw.power || 0,
-            cost_sar_per_hour: ((raw.power || 0) / 1000) * 0.18, // 0.18 SAR per kWh standard rate
+            total_energy_kwh: raw.energy_kwh || 0,
+            accumulated_cost_sar: raw.cost_sar || 0,
             system_status: (raw.power || 0) > 50 ? 'Active Load Detected' : 'Standby (Vampire Draw)',
             unknown_device_warning: false,
             devices: {
               boiler: { state: raw.boiler || 'OFF', confidence_pct: raw.boiler === 'ON' ? 96 : 4 },
               vacuum: { state: raw.vacuum || 'OFF', confidence_pct: raw.vacuum === 'ON' ? 88 : 2 },
-              fan: { state: raw.fan || 'OFF', confidence_pct: raw.fan === 'ON' ? 92 : 1 },
+              toaster: { state: raw.toaster || 'OFF', confidence_pct: raw.toaster === 'ON' ? 92 : 1 },
             }
           };
           
           setData(mappedData);
           setIsLive(true);
-          triggerPulse();
           setError('');
         } else {
           console.warn("Connected to Firebase, but 'readings' node is empty!");
@@ -147,10 +143,7 @@ export default function DashboardPage() {
     } catch (err) {
       console.warn("Firebase config not fully set up yet.", err);
     }
-  }, [triggerPulse]);
-
-  // Loading states are now purely Firebase driven
-
+  }, []);
 
   const deviceEntries = data && data.devices ? Object.entries(data.devices) : [];
   const activeDevices = deviceEntries.filter(([, d]) => d.state === 'ON');
@@ -160,24 +153,19 @@ export default function DashboardPage() {
     'Confidence (%)': d.confidence_pct,
   }));
 
+  const pieData = [
+    { name: 'Boiler', value: timeRange === 'day' ? 4.2 : 126 },
+    { name: 'Toaster', value: timeRange === 'day' ? 1.1 : 33 },
+    { name: 'Vacuum', value: timeRange === 'day' ? 0.8 : 24 },
+    { name: 'Others', value: timeRange === 'day' ? 0.5 : 15 },
+  ];
+
   // Check if data is valid NabihData or raw unformatted data
   const isFormattedData = data && data.devices !== undefined && data.total_power_watts !== undefined;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10" style={{ color: 'var(--text-primary)', position: 'relative' }}>
-      {/* Nabih Pulse overlay */}
-      <AnimatePresence>
-        {pulse && (
-          <motion.div
-            key="pulse"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.12 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{ position: 'fixed', inset: 0, background: '#6ED3CF', pointerEvents: 'none', zIndex: 100 }}
-          />
-        )}
-      </AnimatePresence>
+
 
       {/* Page header */}
       <div className="mb-8">
@@ -214,7 +202,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             {data && (
               <span className="data-readout" style={{ fontSize: '0.65rem', color: 'rgba(46, 196, 182,0.5)' }}>
-                {data.total_power_watts} W · {data.cost_sar_per_hour.toFixed(3)} SAR/hr
+                {data.total_power_watts} W · {data.accumulated_cost_sar?.toFixed(6) || '0.000000'} SAR
               </span>
             )}
             <span className="badge-online">
@@ -312,9 +300,9 @@ export default function DashboardPage() {
               icon={Zap}
             />
             <MetricCard
-              label="Cost Rate"
-              value={`${data.cost_sar_per_hour.toFixed(3)}`}
-              sub="SAR per hour"
+              label="Total Cost"
+              value={`${data.accumulated_cost_sar?.toFixed(6) || '0.000000'} SAR`}
+              sub="Accumulated expenditure"
               color="#6ED3CF"
               icon={DollarSign}
             />
@@ -326,11 +314,11 @@ export default function DashboardPage() {
               icon={Activity}
             />
             <MetricCard
-              label="Daily Est. Cost"
-              value={`${(data.cost_sar_per_hour * 24).toFixed(2)}`}
-              sub="SAR · at current rate × 24 h"
+              label="Total Energy"
+              value={`${data.total_energy_kwh?.toFixed(6) || '0.000000'} kWh`}
+              sub="Cumulative consumption"
               color="#a78bfa"
-              icon={DollarSign}
+              icon={Zap}
             />
           </div>
 
@@ -431,6 +419,83 @@ export default function DashboardPage() {
                   <Bar dataKey="Confidence (%)" radius={[3, 3, 0, 0]} fill="#7ED957" />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Device Contribution Pie Chart */}
+            <div className="glass-card rounded-lg p-6 md:col-span-2">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="section-label">ENERGY CONTRIBUTION ANALYSIS</div>
+                  <div className="text-[0.65rem] text-var(--text-muted) uppercase tracking-widest mt-1">
+                    Device distribution by {timeRange}
+                  </div>
+                </div>
+                <div className="flex bg-[rgba(46,196,182,0.05)] p-1 rounded-md border border-[rgba(46,196,182,0.1)]">
+                  <button
+                    onClick={() => setTimeRange('day')}
+                    className={`px-4 py-1.5 rounded text-[0.6rem] font-bold tracking-wider transition-all ${timeRange === 'day' ? 'bg-[#2EC4B6] text-white shadow-lg' : 'text-var(--text-muted) hover:text-white'}`}
+                  >
+                    DAY
+                  </button>
+                  <button
+                    onClick={() => setTimeRange('month')}
+                    className={`px-4 py-1.5 rounded text-[0.6rem] font-bold tracking-wider transition-all ${timeRange === 'month' ? 'bg-[#2EC4B6] text-white shadow-lg' : 'text-var(--text-muted) hover:text-white'}`}
+                  >
+                    MONTH
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div style={{ height: 280 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={8}
+                        dataKey="value"
+                        animationBegin={0}
+                        animationDuration={1200}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="rgba(0,0,0,0.2)" strokeWidth={2} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          background: 'var(--tooltip-bg)',
+                          border: '1px solid var(--card-border)',
+                          borderRadius: 8,
+                          color: 'var(--tooltip-text)',
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
+                        }}
+                        formatter={(value) => [`${value} kWh`, 'Consumption']}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  {pieData.map((item, i) => (
+                    <div key={item.name} className="flex items-center justify-between p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(46,196,182,0.05)] hover:bg-[rgba(46,196,182,0.05)] transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length], boxShadow: `0 0 8px ${CHART_COLORS[i % CHART_COLORS.length]}` }} />
+                        <span className="section-label" style={{ color: 'var(--text-primary)', fontSize: '0.75rem' }}>{item.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="data-readout" style={{ fontSize: '0.9rem', color: CHART_COLORS[i % CHART_COLORS.length] }}>{item.value.toFixed(1)} kWh</div>
+                        <div className="text-[0.55rem] text-var(--text-muted) font-mono">{((item.value / pieData.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}% CONTRIBUTION</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>

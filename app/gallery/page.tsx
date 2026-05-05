@@ -62,44 +62,7 @@ const PLACEHOLDER: GalleryImage[] = [
   },
 ];
 
-const LOG_ENTRIES = [
-  {
-    week: 'WK 01–02',
-    title: 'Problem Definition & Literature Review',
-    body: "Scoped NILM system requirements. Reviewed Hart's 1992 paper on load monitoring and modern edge-ML approaches. Settled on event-driven transient detection over steady-state disaggregation.",
-    status: 'COMPLETE',
-  },
-  {
-    week: 'WK 03–04',
-    title: 'Hardware Selection & Schematic Design',
-    body: 'Selected ESP32-S3 for dual-core advantage. Designed analog front-end: SCT-013-030 CT, ZMPT101B voltage reference, 12-bit ADC oversampled at 4 kHz via DMA. KiCad schematic Rev 1.1 complete.',
-    status: 'COMPLETE',
-  },
-  {
-    week: 'WK 05–06',
-    title: 'Firmware Development',
-    body: 'Wrote ESP-IDF FreeRTOS tasks for signal acquisition, FFT feature extraction (32-point), and Wi-Fi JSON broadcast. Implemented circular DMA buffer to prevent sample dropout at 4 kHz.',
-    status: 'COMPLETE',
-  },
-  {
-    week: 'WK 07–08',
-    title: 'NILM ML Model Integration',
-    body: 'Trained Random Forest on PLAID dataset features (P, Q, V-I trajectory, harmonics). Quantised to TFLite int8 — on-device inference at < 50 ms latency, 96.2 % accuracy on held-out set.',
-    status: 'COMPLETE',
-  },
-  {
-    week: 'WK 09–10',
-    title: 'System Integration & Bench Testing',
-    body: 'Validated with 4 simultaneous appliances: AC, refrigerator, lighting, laptop. Confirmed JSON schema compatibility with Nabih web dashboard. Power overhead verified at 74 mA idle.',
-    status: 'COMPLETE',
-  },
-  {
-    week: 'WK 11–12',
-    title: 'Final Demo & Report Submission',
-    body: 'Conducted live demo with 4-appliance simultaneous load scenario. Presented disaggregation accuracy and cost estimation results to faculty panel. Final report submitted.',
-    status: 'COMPLETE',
-  },
-];
+
 
 const TAG_STYLE: Record<string, { color: string; bg: string; border: string }> = {
   team:     { color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.25)' },
@@ -127,7 +90,6 @@ export default function GalleryPage() {
     e.target.value = '';
   }
 
-  const tags = ['all', 'team', 'hardware', 'software', 'uploaded'];
   const visible = filter === 'all' ? images : images.filter((i) => i.tag === filter);
 
   return (
@@ -146,84 +108,9 @@ export default function GalleryPage() {
           GALLERY
         </h1>
       </div>
+      
 
-      {/* ── Project Log ───────────────────────────────────── */}
-      <section className="mb-16">
-        <div
-          className="glass-card rounded-lg overflow-hidden"
-        >
-          <div
-            className="flex items-center gap-3 px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(46, 196, 182,0.1)' }}
-          >
-            <BookOpen size={15} style={{ color: '#2EC4B6' }} />
-            <span className="section-label">PROJECT LOG · DEVELOPMENT TIMELINE</span>
-          </div>
-
-          <div className="p-6 space-y-4">
-            {LOG_ENTRIES.map(({ week, title, body, status }, idx) => (
-              <motion.div
-                key={week}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.07, duration: 0.35 }}
-                className="flex gap-5"
-              >
-                {/* Timeline spine */}
-                <div className="flex flex-col items-center" style={{ minWidth: 80 }}>
-                  <div
-                    className="data-readout text-center px-2 py-1 rounded"
-                    style={{
-                      fontSize: '0.6rem',
-                      background: 'rgba(46, 196, 182,0.08)',
-                      border: '1px solid rgba(46, 196, 182,0.2)',
-                      color: '#2EC4B6',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {week}
-                  </div>
-                  {idx < LOG_ENTRIES.length - 1 && (
-                    <div style={{ width: 1, flex: 1, minHeight: 24, background: 'rgba(46, 196, 182,0.1)', marginTop: 6 }} />
-                  )}
-                </div>
-
-                {/* Entry */}
-                <div
-                  className="flex-1 rounded p-4 mb-2"
-                  style={{
-                    background: 'rgba(46, 196, 182,0.02)',
-                    border: '1px solid rgba(46, 196, 182,0.08)',
-                  }}
-                >
-                  <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
-                    <span
-                      className="font-semibold tracking-wide"
-                      style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}
-                    >
-                      {title}
-                    </span>
-                    <span
-                      className="data-readout px-2 py-0.5 rounded"
-                      style={{
-                        fontSize: '0.6rem',
-                        background: 'rgba(110, 211, 207,0.08)',
-                        border: '1px solid rgba(110, 211, 207,0.2)',
-                        color: '#6ED3CF',
-                      }}
-                    >
-                      {status}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-                    {body}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+     
 
       {/* ── Photo Gallery ─────────────────────────────────── */}
       <section>
@@ -241,24 +128,7 @@ export default function GalleryPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               {/* Filter */}
-              <div className="flex gap-1.5">
-                {tags.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setFilter(t)}
-                    className="data-readout px-3 py-1 rounded uppercase transition-all"
-                    style={{
-                      fontSize: '0.6rem',
-                      letterSpacing: '0.1em',
-                      ...(filter === t
-                        ? { background: 'rgba(46, 196, 182,0.15)', border: '1px solid rgba(46, 196, 182,0.4)', color: '#2EC4B6' }
-                        : { background: 'transparent', border: '1px solid rgba(46, 196, 182,0.12)', color: 'var(--text-muted)' }),
-                    }}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+  
 
               <button
                 onClick={() => fileRef.current?.click()}
@@ -276,89 +146,6 @@ export default function GalleryPage() {
                 onChange={handleUpload}
               />
             </div>
-          </div>
-
-          <div className="p-6">
-            {visible.length === 0 ? (
-              <div className="text-center py-16 section-label">NO RECORDS IN THIS CATEGORY</div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {visible.map((img, i) => {
-                  const ts = TAG_STYLE[img.tag];
-                  return (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.04, duration: 0.3 }}
-                      className="gallery-frame rounded-lg overflow-hidden group cursor-pointer"
-                    >
-                      {/* Scan line corner labels */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 8, left: 8,
-                          zIndex: 10,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          background: 'rgba(244,246,245,0.8)',
-                          border: `1px solid ${ts.border}`,
-                          borderRadius: 3,
-                          padding: '2px 6px',
-                        }}
-                      >
-                        <Tag size={8} style={{ color: ts.color }} />
-                        <span
-                          className="data-readout uppercase"
-                          style={{ fontSize: '0.55rem', color: ts.color, letterSpacing: '0.1em' }}
-                        >
-                          {img.tag}
-                        </span>
-                      </div>
-
-                      {/* Image */}
-                      <div
-                        className="aspect-[4/3] overflow-hidden"
-                        style={{ background: '#FFFFFF' }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={img.url}
-                          alt={img.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          style={{ filter: 'saturate(0.9) contrast(1.05)' }}
-                        />
-                      </div>
-
-                      {/* Caption */}
-                      <div
-                        style={{
-                          padding: '10px 12px',
-                          background: 'rgba(244,246,245,0.9)',
-                          borderTop: '1px solid rgba(46, 196, 182,0.1)',
-                        }}
-                      >
-                        <p
-                          className="font-semibold truncate"
-                          style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}
-                        >
-                          {img.name}
-                        </p>
-                        {img.meta && (
-                          <p
-                            className="data-readout truncate mt-0.5"
-                            style={{ fontSize: '0.6rem', color: 'rgba(46, 196, 182,0.4)' }}
-                          >
-                            {img.meta}
-                          </p>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </section>
