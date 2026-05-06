@@ -1,166 +1,155 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, Camera, BookOpen, Tag } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Camera, Tag, Calendar, MapPin, BookOpen } from 'lucide-react';
 
 interface GalleryImage {
   url: string;
   name: string;
-  tag: 'team' | 'hardware' | 'software' | 'uploaded';
+  tag: 'team' | 'hardware' | 'software' | 'uploaded' | 'event';
   meta?: string;
 }
 
 const PLACEHOLDER: GalleryImage[] = [
   {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><line x1="0" y1="0" x2="400" y2="300" stroke="rgba(46, 196, 182,0.05)" stroke-width="1"/><line x1="400" y1="0" x2="0" y2="300" stroke="rgba(46, 196, 182,0.05)" stroke-width="1"/><text x="50%" y="42%" fill="#2EC4B6" font-size="42" text-anchor="middle" font-family="monospace">👥</text><text x="50%" y="60%" fill="rgba(46, 196, 182,0.6)" font-size="14" text-anchor="middle" font-family="monospace">PROJECT TEAM</text><text x="50%" y="72%" fill="rgba(46, 196, 182,0.3)" font-size="10" text-anchor="middle" font-family="monospace">EE311 · NABIH</text></svg>`
-    )}`,
-    name: 'Project Team',
+    url: '/gallery/1.jpeg',
+    name: 'Showcasing Innovation at Prince Sattam bin Abdulaziz University Engineering Hackathon',
+    tag: 'event',
+    meta: 'Innovation Hub · PSBAU Engineering Hackathon',
+  },
+  {
+    url: '/gallery/2.jpeg',
+    name: 'From Concept to Prototype: The Technical Development of Nabeeh',
     tag: 'team',
-    meta: 'EE311 Capstone Group',
+    meta: 'Project Collaboration · PSBAU Hackathon',
   },
   {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><rect x="100" y="80" width="200" height="140" rx="4" fill="none" stroke="rgba(46, 196, 182,0.3)" stroke-width="1"/><rect x="130" y="100" width="60" height="40" rx="2" fill="rgba(46, 196, 182,0.1)" stroke="rgba(46, 196, 182,0.3)" stroke-width="1"/><rect x="210" y="100" width="60" height="40" rx="2" fill="rgba(46, 196, 182,0.1)" stroke="rgba(46, 196, 182,0.3)" stroke-width="1"/><text x="50%" y="78%" fill="#2EC4B6" font-size="12" text-anchor="middle" font-family="monospace">ESP32-S3 PROTOTYPE</text></svg>`
-    )}`,
-    name: 'ESP32-S3 Board',
+    url: '/gallery/3.jpeg',
+    name: 'Prototype Exhibition',
     tag: 'hardware',
-    meta: 'Rev 1.2 · Dual-Core 240 MHz',
-  },
-  {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><circle cx="200" cy="140" r="60" fill="none" stroke="rgba(46, 196, 182,0.3)" stroke-width="2"/><circle cx="200" cy="140" r="40" fill="none" stroke="rgba(46, 196, 182,0.15)" stroke-width="1"/><text x="50%" y="54%" fill="#2EC4B6" font-size="11" text-anchor="middle" font-family="monospace">SCT-013-030</text><text x="50%" y="78%" fill="rgba(46, 196, 182,0.6)" font-size="12" text-anchor="middle" font-family="monospace">CURRENT TRANSFORMER</text></svg>`
-    )}`,
-    name: 'SCT-013 CT Sensor',
-    tag: 'hardware',
-    meta: 'Non-invasive · 30A max',
-  },
-  {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><polyline points="20,150 60,150 70,80 80,220 90,150 130,150 140,100 150,200 160,150 200,150 210,120 220,180 230,150 380,150" fill="none" stroke="#2EC4B6" stroke-width="1.5"/><text x="50%" y="82%" fill="rgba(46, 196, 182,0.5)" font-size="12" text-anchor="middle" font-family="monospace">NILM LOAD SIGNATURE</text></svg>`
-    )}`,
-    name: 'NILM Waveform Capture',
-    tag: 'software',
-    meta: 'Oscilloscope · 4 kHz sample',
-  },
-  {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><rect x="40" y="60" width="320" height="180" rx="4" fill="none" stroke="rgba(46, 196, 182,0.2)" stroke-width="1"/><rect x="60" y="80" width="280" height="20" rx="2" fill="rgba(46, 196, 182,0.08)"/><rect x="60" y="110" width="180" height="12" rx="2" fill="rgba(46, 196, 182,0.05)"/><rect x="60" y="130" width="220" height="12" rx="2" fill="rgba(46, 196, 182,0.05)"/><rect x="60" y="150" width="160" height="12" rx="2" fill="rgba(46, 196, 182,0.05)"/><text x="50%" y="86%" fill="rgba(46, 196, 182,0.5)" font-size="12" text-anchor="middle" font-family="monospace">DASHBOARD PROTOTYPE</text></svg>`
-    )}`,
-    name: 'UI Wireframe v0.3',
-    tag: 'software',
-    meta: 'Figma → Next.js',
-  },
-  {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#FFFFFF"/><text x="50%" y="40%" fill="#6ED3CF" font-size="40" text-anchor="middle" font-family="monospace">📐</text><text x="50%" y="60%" fill="rgba(110, 211, 207,0.7)" font-size="12" text-anchor="middle" font-family="monospace">ANALOG FRONT-END</text><text x="50%" y="72%" fill="rgba(46, 196, 182,0.3)" font-size="10" text-anchor="middle" font-family="monospace">SCH REV 1.1</text></svg>`
-    )}`,
-    name: 'Analog Front-End Schematic',
-    tag: 'hardware',
-    meta: 'KiCad · EE311 Lab',
+    meta: 'NILM System Showcase',
   },
 ];
 
-
-
 const TAG_STYLE: Record<string, { color: string; bg: string; border: string }> = {
-  team:     { color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.25)' },
-  hardware: { color: '#7ED957', bg: 'rgba(126, 217, 87,0.08)',  border: 'rgba(126, 217, 87,0.25)' },
-  software: { color: '#6ED3CF', bg: 'rgba(110, 211, 207,0.08)',   border: 'rgba(110, 211, 207,0.25)' },
-  uploaded: { color: '#F4C20D', bg: 'rgba(244, 194, 13,0.08)',  border: 'rgba(244, 194, 13,0.25)' },
+  all:      { color: '#2EC4B6', bg: 'rgba(46, 196, 182, 0.08)', border: 'rgba(46, 196, 182, 0.25)' },
+  event:    { color: '#F4C20D', bg: 'rgba(244, 194, 13, 0.08)',  border: 'rgba(244, 194, 13, 0.25)' },
+  team:     { color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.08)', border: 'rgba(167, 139, 250, 0.25)' },
+  hardware: { color: '#7ED957', bg: 'rgba(126, 217, 87, 0.08)',  border: 'rgba(126, 217, 87, 0.25)' },
+  software: { color: '#6ED3CF', bg: 'rgba(110, 211, 207, 0.08)', border: 'rgba(110, 211, 207, 0.25)' },
+  uploaded: { color: '#FF7E67', bg: 'rgba(255, 126, 103, 0.08)', border: 'rgba(255, 126, 103, 0.25)' },
 };
 
 export default function GalleryPage() {
-  const [images, setImages] = useState<GalleryImage[]>(PLACEHOLDER);
-  const [filter, setFilter] = useState('all');
+  const [images] = useState<GalleryImage[]>(PLACEHOLDER);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    const newImgs: GalleryImage[] = files
-      .filter((f) => f.type.startsWith('image/'))
-      .map((f) => ({
-        url: URL.createObjectURL(f),
-        name: f.name.replace(/\.[^/.]+$/, ''),
-        tag: 'uploaded' as const,
-        meta: `${(f.size / 1024).toFixed(0)} KB · ${new Date().toLocaleDateString()}`,
-      }));
-    setImages((prev) => [...prev, ...newImgs]);
-    e.target.value = '';
-  }
-
-  const visible = filter === 'all' ? images : images.filter((i) => i.tag === filter);
-
   return (
-    <div
-      className="max-w-7xl mx-auto px-6 py-10"
-      style={{ color: 'var(--text-primary)' }}
-    >
-      {/* Header */}
-      <div className="mb-8">
-        <div className="section-label mb-1">NABIH NILM · PROJECT DOCUMENTATION</div>
-        <div className="cyber-divider mb-4" />
-        <h1
-          className="font-extrabold tracking-tight glow-green"
-          style={{ fontSize: '1.75rem' }}
-        >
-          GALLERY
-        </h1>
-      </div>
-      
-
-     
-
-      {/* ── Photo Gallery ─────────────────────────────────── */}
-      <section>
-        <div
-          className="glass-card rounded-lg overflow-hidden"
-        >
-          <div
-            className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(46, 196, 182,0.1)' }}
-          >
-            <div className="flex items-center gap-3">
-              <Camera size={15} style={{ color: '#2EC4B6' }} />
-              <span className="section-label">PHOTOGRAPHIC DOCUMENTATION</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Filter */}
-  
-
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="btn-turquoise flex items-center gap-2 px-4 py-1.5 rounded text-xs font-semibold tracking-wider uppercase"
-              >
-                <Upload size={13} />
-                Upload
-              </button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleUpload}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer
-        className="text-center py-8 mt-8"
-        style={{
-          borderTop: '1px solid rgba(46, 196, 182,0.08)',
-          color: 'var(--text-muted)',
-          fontSize: '0.65rem',
-          letterSpacing: '0.12em',
-        }}
+    <div className="max-w-7xl mx-auto px-6 py-12" style={{ color: 'var(--text-primary)' }}>
+      {/* ── Header Section ─────────────────────────────────── */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-12"
       >
-        <span className="data-readout">NABIH NILM · EE311 CAPSTONE · DOCUMENTATION ARCHIVE</span>
+        <div className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-[#2EC4B6]/60 mb-2">
+          <BookOpen size={14} />
+          <span>PROJECT DOCUMENTATION & MEDIA</span>
+        </div>
+        <div className="h-px w-full bg-gradient-to-r from-[#2EC4B6]/30 via-[#2EC4B6]/10 to-transparent mb-6" />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black tracking-tight mb-2 text-white glow-green">
+              VISUAL <span className="text-[#2EC4B6]">GALLERY</span>
+            </h1>
+            <p className="text-sm text-[#8E9AAF] max-w-xl leading-relaxed">
+              A curated collection of hardware prototypes, software architectures, and significant milestones 
+              captured during the development of Nabih NILM.
+            </p>
+          </div>
+          
+
+          <input type="file" ref={fileRef} className="hidden" multiple accept="image/*" />
+        </div>
+      </motion.div>
+
+      {/* ── Image Grid ───────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <AnimatePresence mode="popLayout">
+          {images.map((img, idx) => (
+            <motion.div
+              layout
+              key={img.url + idx}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              className="group relative"
+            >
+              <div className="glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-[#2EC4B6]/30 transition-all duration-500 hover:shadow-[0_0_40px_rgba(46,196,182,0.15)] h-full flex flex-col">
+                {/* Image Container */}
+                <div className="aspect-[4/3] relative overflow-hidden bg-[#0A0F1E]">
+                  <Image
+                    src={img.url}
+                    alt={img.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  
+                  {/* Overlay Tag */}
+                  <div 
+                    className="absolute top-4 left-4 px-3 py-1 rounded-full text-[9px] font-black tracking-widest backdrop-blur-md border shadow-lg"
+                    style={{
+                      backgroundColor: TAG_STYLE[img.tag].bg,
+                      color: TAG_STYLE[img.tag].color,
+                      borderColor: TAG_STYLE[img.tag].border,
+                    }}
+                  >
+                    {img.tag.toUpperCase()}
+                  </div>
+
+                </div>
+
+                {/* Info Area */}
+                <div className="p-6 flex-grow flex flex-col justify-between bg-gradient-to-b from-white/[0.02] to-transparent">
+                  <div>
+                    <h3 className="text-sm font-bold text-white/90 mb-3 leading-snug group-hover:text-[#2EC4B6] transition-colors">
+                      {img.name}
+                    </h3>
+                    {img.meta && (
+                      <div className="flex items-center gap-2 text-[10px] text-[#8E9AAF] font-medium">
+                        {img.tag === 'event' ? <MapPin size={10} className="text-[#F4C20D]" /> : <Tag size={10} />}
+                        <span className="tracking-wide">{img.meta}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* ── Empty State ───────────────────────────────────── */}
+      {images.length === 0 && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="py-32 text-center"
+        >
+          <Camera size={48} className="mx-auto text-[#2EC4B6]/20 mb-4" />
+          <p className="text-[#8E9AAF] font-medium">No documentation found in this category.</p>
+        </motion.div>
+      )}
+
+      {/* ── Footer ────────────────────────────────────────── */}
+      <footer className="mt-24 pt-8 border-t border-white/5 text-center">
+        <p className="text-[10px] text-[#8E9AAF]/40 tracking-[0.3em] font-black uppercase">
+          Nabih NILM System · Media Archive · {new Date().getFullYear()}
+        </p>
       </footer>
     </div>
   );

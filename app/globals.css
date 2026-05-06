@@ -148,7 +148,7 @@ body::after {
   background-position: center 14px;
 }
 
-#__next, main, nav, section, div { position: relative; }
+#__next, main, nav, section { position: relative; }
 
 /* ═══════════════════════════════════════════════════════════
    COMPONENTS

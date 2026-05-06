@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Cpu, Activity, Image as ImageIcon, Menu, X, Binary } from 'lucide-react';
+import { Cpu, Activity, Image as ImageIcon, Menu, X, Binary, Users } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const links = [
@@ -17,6 +17,7 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
   return (
     <nav
       className="sticky top-0 z-50 w-full"
@@ -72,6 +73,28 @@ export default function Navbar() {
               </Link>
             );
           })}
+          
+          {/* Contacts Button */}
+          <Link
+            href="/contacts"
+            className="ml-2 flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-all duration-200"
+            style={
+              pathname === '/contacts'
+                ? {
+                    background: 'var(--accent)',
+                    color: 'black',
+                    boxShadow: '0 0 20px color-mix(in srgb, var(--accent) 40%, transparent)',
+                  }
+                : {
+                    background: 'color-mix(in srgb, var(--accent) 8%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
+                    color: 'var(--accent)',
+                  }
+            }
+          >
+            <Users size={14} />
+            <span className="tracking-wider text-xs uppercase">Contacts</span>
+          </Link>
         </div>
 
         {/* Status badge + theme toggle */}
@@ -99,7 +122,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div
-          className="md:hidden px-6 py-4 flex flex-col gap-2"
+          className="md:hidden px-6 py-4 flex flex-col gap-2 max-h-[80vh] overflow-y-auto"
           style={{ borderTop: '1px solid var(--navbar-border)' }}
         >
           {links.map(({ href, label, icon: Icon }) => {
@@ -121,6 +144,20 @@ export default function Navbar() {
               </Link>
             );
           })}
+          
+          <Link
+            href="/contacts"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-4 mt-2 rounded text-sm font-bold"
+            style={{
+              background: pathname === '/contacts' ? 'var(--accent)' : 'color-mix(in srgb, var(--accent) 10%, transparent)',
+              color: pathname === '/contacts' ? 'black' : 'var(--accent)',
+              border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+            }}
+          >
+            <Users size={16} />
+            <span className="uppercase tracking-wider text-xs">Contacts</span>
+          </Link>
         </div>
       )}
     </nav>
